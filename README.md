@@ -11,7 +11,7 @@ The platform enables engineers, plant operators, and management teams to instant
 ## 🌐 Live Demo
 
 **Live Prototype:**  
-https://your-project.stitch.site
+https://indus-brain-ai.vercel.app/
 
 ---
 
