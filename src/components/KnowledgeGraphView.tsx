@@ -346,7 +346,7 @@ export default function KnowledgeGraphView({
           <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/20 flex justify-between items-center text-left">
             <div className="p-3 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-slate-200 dark:border-slate-800/40 flex items-center gap-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/30 cursor-pointer">
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{selectedNode.label}</div>
+                <div className="text-sm font-bold text-slate-800 dark:text-slate-800 truncate">{selectedNode.label}</div>
                 <p className="font-mono text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-1 block">
                   {selectedNode.system}
                 </p>
@@ -425,21 +425,18 @@ export default function KnowledgeGraphView({
                 </h5>
                 <div className="space-y-2">
                   {selectedNode.relatedDocs.map((doc, idx) => (
-                    <div 
-                      key={idx}
-                      className="group p-3 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-slate-200 dark:border-slate-800/40 flex items-center gap-3 transition-colors hover:bg-black dark:hover:bg-slate-800/30 cursor-pointer"
-                    >
-                      <FileText className="w-5 h-5 text-slate-400 flex-shrink-0 group-hover:text-white" />
+                    <div key={doc.name ? `${doc.name}-${idx}` : idx} className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
-                       <p className="text-xs font-bold text-black dark:text-white truncate leading-none group-hover:text-white">
-  {doc.name}
-</p>
+                        <div className="text-sm font-bold text-black dark:text-slate-200 group-hover:text-white transition-colors">
+                          {doc.name || selectedNode.label}
+                        </div>
 
-<p className="text-[10px] text-black dark:text-white mt-1 group-hover:text-white">
-  {doc.info}
-</p>
+                        <p className="font-mono text-[10px] text-blue-600 dark:text-blue-400 group-hover:text-white uppercase tracking-wider mt-1 block transition-colors">
+                          {doc.type || selectedNode.system}
+                        </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-black dark:text-white group-hover:text-white" />
+
+                      <FileText className="w-5 h-5 text-slate-400 group-hover:text-white shrink-0 transition-colors" />
                     </div>
                   ))}
                 </div>
