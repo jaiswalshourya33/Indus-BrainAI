@@ -1,0 +1,6 @@
+{
+  "name": "Indus Brain AI",
+  "description": "Unified Asset & Operations Brain for industrial intelligence, predictive analytics, and precision monitoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
