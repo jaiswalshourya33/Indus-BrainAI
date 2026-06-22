@@ -1,20 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Settings, 
-  History, 
-  AlertTriangle, 
-  ShieldAlert, 
-  BookOpen, 
-  Link, 
-  FileText, 
-  Compass, 
+import React, { useState, useRef } from 'react';
+import {
+  Settings,
+  History,
+  AlertTriangle,
+  ShieldAlert,
+  BookOpen,
+  FileText,
   ArrowRight,
   Sparkles,
-  Info,
-  CheckCircle,
   Network
 } from 'lucide-react';
 import { ViewType, Incident } from '../types';
+
+interface RelatedDoc {
+  name: string;
+  type: string;
+  info: string;
+}
+
 
 interface KnowledgeNode {
   id: string;
@@ -27,7 +30,7 @@ interface KnowledgeNode {
   riskProgress?: number;
   aiSummary?: string;
   system: string;
-  relatedDocs?: { name: string; type: string; info: string }[];
+  relatedDocs?: RelatedDoc[];
   imageSrc?: string;
 }
 
@@ -35,6 +38,15 @@ interface KnowledgeGraphViewProps {
   onAddIncident: (incident: Incident) => void;
   setCurrentView: (view: ViewType) => void;
   onShowNotification: (message: string) => void;
+}
+
+// Fallback JSX types to avoid TypeScript complaints in some build configs
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      [elemName: string]: any;
+    }
+  }
 }
 
 export default function KnowledgeGraphView({
@@ -127,12 +139,12 @@ export default function KnowledgeGraphView({
     }
   ];
 
-  const handleDragStart = (e: React.MouseEvent) => {
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
     setInitialDrag({ x: e.clientX - positions.dx, y: e.clientY - positions.dy });
   };
 
-  const handleDragMove = (e: React.MouseEvent) => {
+  const handleDragMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     setPositions({
       dx: e.clientX - initialDrag.x,
@@ -168,8 +180,8 @@ export default function KnowledgeGraphView({
 
   // Render connector line paths dynamically relative to canvas parent layout percentages
   const getLineCoordinates = (id1: string, id2: string) => {
-    const n1 = nodesList.find(n => n.id === id1);
-    const n2 = nodesList.find(n => n.id === id2);
+    const n1 = nodesList.find(n => n.id === id1) as any;
+    const n2 = nodesList.find(n => n.id === id2) as any;
     if (!n1 || !n2) return { x1: 0, y1: 0, x2: 0, y2: 0 };
     return {
       x1: `${n1.x}%`,
@@ -197,7 +209,7 @@ export default function KnowledgeGraphView({
             className="bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-xs w-full text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
             placeholder="Search nodes (e.g., Pump, SOP)..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
@@ -259,7 +271,7 @@ export default function KnowledgeGraphView({
             return (
               <div
                 key={node.id}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.stopPropagation();
                   setSelectedNode(node);
                 }}
@@ -332,13 +344,14 @@ export default function KnowledgeGraphView({
         <div className="w-96 h-full bg-white dark:bg-[#161b2b] border-l border-slate-200 dark:border-slate-800/80 shadow-2xl relative z-40 flex flex-col animate-[slideLeft_0.35s_cubic-bezier(0.16,1,0.3,1)]">
           {/* Header section */}
           <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/20 flex justify-between items-center text-left">
-            <div>
-              <h3 className="font-sans text-lg font-black text-slate-800 dark:text-slate-100">
-                {selectedNode.label}
-              </h3>
-              <p className="font-mono text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-1 block">
-                {selectedNode.system}
-              </p>
+            <div className="p-3 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-slate-200 dark:border-slate-800/40 flex items-center gap-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/30 cursor-pointer">
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{selectedNode.label}</div>
+                <p className="font-mono text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-1 block">
+                  {selectedNode.system}
+                </p>
+              </div>
+              <FileText className="w-5 h-5 text-slate-400 shrink-0" />
             </div>
             <button 
               onClick={() => setSelectedNode(null)}
@@ -349,7 +362,7 @@ export default function KnowledgeGraphView({
           </div>
 
           {/* Scrolling metadata content section */}
-          <div className="flex-grow overflow-y-auto p-5 space-y-6 text-left">
+          <div className="grow overflow-y-auto p-5 space-y-6 text-left">
             
             {/* Risk Indicator Card */}
             {selectedNode.riskRating && (
@@ -396,7 +409,7 @@ export default function KnowledgeGraphView({
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent p-2 text-left">
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-slate-900 via-slate-900/40 to-transparent p-2 text-left">
                   <span className="bg-red-500/25 border border-red-500 text-red-400 px-2 py-0.5 rounded text-[8px] font-mono uppercase font-bold tracking-widest">
                     LIVE THERMAL HEATMAP
                   </span>
@@ -414,18 +427,19 @@ export default function KnowledgeGraphView({
                   {selectedNode.relatedDocs.map((doc, idx) => (
                     <div 
                       key={idx}
-                      className="p-3 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-slate-200 dark:border-slate-800/40 flex items-center gap-3 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/30 cursor-pointer"
+                      className="group p-3 bg-slate-50 dark:bg-slate-850/50 rounded-lg border border-slate-200 dark:border-slate-800/40 flex items-center gap-3 transition-colors hover:bg-black dark:hover:bg-slate-800/30 cursor-pointer"
                     >
-                      <FileText className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                      <FileText className="w-5 h-5 text-slate-400 flex-shrink-0 group-hover:text-white" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate leading-none">
-                          {doc.name}
-                        </p>
-                        <p className="text-[10px] text-slate-400 mt-1">
-                          {doc.info}
-                        </p>
+                       <p className="text-xs font-bold text-black dark:text-white truncate leading-none group-hover:text-white">
+  {doc.name}
+</p>
+
+<p className="text-[10px] text-black dark:text-white mt-1 group-hover:text-white">
+  {doc.info}
+</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-slate-400" />
+                      <ArrowRight className="w-4 h-4 text-black dark:text-white group-hover:text-white" />
                     </div>
                   ))}
                 </div>
