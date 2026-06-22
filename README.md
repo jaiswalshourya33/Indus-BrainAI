@@ -151,13 +151,6 @@ The platform generates:
 
 ---
 
-## 🎥 Demo Video
-
-**Demo Link:**  
-https://loom.com/share/your-demo-link
-
----
-
 ## 👨‍💻 Contributors
 
 - **Shourya Jaiswal**
